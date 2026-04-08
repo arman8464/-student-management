@@ -18,7 +18,7 @@ function App() {
   // ================= AUTH =================
 
   const register = () => {
-    fetch("http://student-backend-7a0d.onrender.com/register", {
+    fetch("https://student-backend-7a0d.onrender.com/register", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ username, password })
@@ -28,13 +28,14 @@ function App() {
   };
 
   const login = () => {
-    fetch("http://student-backend-7a0d.onrender.com/login", {
+    fetch("https://student-backend-7a0d.onrender.com/login", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ username, password })
     })
     .then(res => res.json())
     .then(data => {
+      console.log(data);
       if (data.token) {
         setToken(data.token);
         getStudents(data.token);
@@ -52,7 +53,7 @@ function App() {
   // ================= STUDENTS =================
 
   const getStudents = (tok = token) => {
-    fetch("http://student-backend-7a0d.onrender.com/students", {
+    fetch("https://student-backend-7a0d.onrender.com/students", {
       headers: { "Authorization": tok }
     })
     .then(res => res.json())
@@ -63,7 +64,7 @@ function App() {
     const student = { name, age, course };
 
     if (editId !== null) {
-      fetch(`http://student-backend-7a0d.onrender.com/students/${editId}`, {
+      fetch(`https://student-backend-7a0d.onrender.com/students/${editId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -77,7 +78,7 @@ function App() {
       });
 
     } else {
-      fetch("http://student-backend-7a0d.onrender.com/students", {
+      fetch("https://student-backend-7a0d.onrender.com/students", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +93,7 @@ function App() {
   };
 
   const deleteStudent = (id) => {
-    fetch(`http://student-backend-7a0d.onrender.com/students/${id}`, {
+    fetch(`https://student-backend-7a0d.onrender.com/students/${id}`, {
       method: "DELETE",
       headers: { "Authorization": token }
     }).then(() => getStudents());
