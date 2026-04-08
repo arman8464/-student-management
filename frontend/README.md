@@ -16,6 +16,7 @@ A full-stack **Student Management System** built using **React, Node.js, Express
   - Delete Student
 - 💾 Data stored in MySQL (persistent storage)
 - 🌐 REST API architecture
+  -🎨Responsive UI using Bootstrap
 
 ---
 
@@ -24,7 +25,7 @@ A full-stack **Student Management System** built using **React, Node.js, Express
 ### Frontend
 
 - React.js
-- CSS
+- Bootstrap(UI styling)
 
 ### Backend
 
@@ -52,7 +53,6 @@ student-management/
 ├── frontend/
 │ ├── src/
 │ │ ├── App.js
-│ │ ├── App.css
 │
 └── README.md
 
