@@ -18,7 +18,7 @@ function App() {
   // ================= AUTH =================
 
   const register = () => {
-    fetch("http://127.0.0.1:3001/register", {
+    fetch("http://student-backend-7a0d.onrender.com/register", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ username, password })
@@ -28,7 +28,7 @@ function App() {
   };
 
   const login = () => {
-    fetch("http://127.0.0.1:3001/login", {
+    fetch("http://student-backend-7a0d.onrender.com/login", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ username, password })
@@ -52,7 +52,7 @@ function App() {
   // ================= STUDENTS =================
 
   const getStudents = (tok = token) => {
-    fetch("http://127.0.0.1:3001/students", {
+    fetch("http://student-backend-7a0d.onrender.com/students", {
       headers: { "Authorization": tok }
     })
     .then(res => res.json())
@@ -63,7 +63,7 @@ function App() {
     const student = { name, age, course };
 
     if (editId !== null) {
-      fetch(`http://127.0.0.1:3001/students/${editId}`, {
+      fetch(`http://student-backend-7a0d.onrender.com/students/${editId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -77,7 +77,7 @@ function App() {
       });
 
     } else {
-      fetch("http://127.0.0.1:3001/students", {
+      fetch("http://student-backend-7a0d.onrender.com/students", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +92,7 @@ function App() {
   };
 
   const deleteStudent = (id) => {
-    fetch(`http://127.0.0.1:3001/students/${id}`, {
+    fetch(`http://student-backend-7a0d.onrender.com/students/${id}`, {
       method: "DELETE",
       headers: { "Authorization": token }
     }).then(() => getStudents());
