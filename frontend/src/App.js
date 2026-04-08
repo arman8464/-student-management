@@ -11,7 +11,7 @@ function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
 
   const [editId, setEditId] = useState(null);
 
@@ -28,27 +28,28 @@ function App() {
   };
 
   const login = () => {
-    fetch("https://student-backend-7a0d.onrender.com/login", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ username, password })
-    })
-    .then(res => res.json())
-    .then(data => {
-      console.log(data);
-      if (data.token) {
-        setToken(data.token);
-        getStudents(data.token);
-      } else {
-        alert(data.message);
-      }
-    });
-  };
+  fetch("https://student-backend-7a0d.onrender.com/login", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ username, password })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.token) {
+      localStorage.setItem("token", data.token); // ✅ SAVE
+      setToken(data.token);
+      getStudents(data.token);
+    } else {
+      alert(data.message);
+    }
+  });
+};
 
   const logout = () => {
-    setToken("");
-    setStudents([]);
-  };
+  localStorage.removeItem("token"); // ✅ REMOVE
+  setToken("");
+  setStudents([]);
+};
 
   // ================= STUDENTS =================
 
