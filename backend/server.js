@@ -130,6 +130,9 @@ app.delete("/students/:id", verifyToken, (req, res) => {
         res.json({ message: "Student deleted" });
     });
 });
+app.get("/", (req, res) => {
+    res.send("Backend is running");
+});
 
 app.listen(process.env.PORT || 3001, () => {
     console.log("Server running on port 3001");
