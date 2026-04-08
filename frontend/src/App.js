@@ -117,68 +117,74 @@ function App() {
     <div className="container mt-5">
 
       {!token ? (
-        <div className="card p-4">
+        <div className="card p-4 text-center">
           <h3 className="mb-3">🔐 Login / Register</h3>
 
           <input 
-            className="form-control mb-2"
+            className="form-control mb-2 w-50 mx-auto"
             placeholder="Username"
             onChange={(e)=>setUsername(e.target.value)}
           />
 
           <input 
-            className="form-control mb-3"
+            className="form-control mb-3 w-50 mx-auto"
             type="password"
             placeholder="Password"
             onChange={(e)=>setPassword(e.target.value)}
           />
 
-          <button className="btn btn-primary me-2" onClick={register}>
-            Register
-          </button>
+          <div className="d-flex justify-content-center">
+            <button className="btn btn-primary m-2" onClick={register}>
+              Register
+            </button>
 
-          <button className="btn btn-success" onClick={login}>
-            Login
-          </button>
+            <button className="btn btn-success m-2" onClick={login}>
+              Login
+            </button>
+          </div>
         </div>
 
       ) : (
-        <div className="card p-4">
+        <div className="card p-4 text-center">
           <h3 className="mb-3">🎓 Student Dashboard</h3>
 
-          <button className="btn btn-dark mb-3" onClick={logout}>
-            Logout
-          </button>
+          <div className="d-flex justify-content-end">
+  <button className="btn btn-dark btn-sm mb-3" onClick={logout}>
+    Logout
+  </button>
+</div>
 
           <input 
-            className="form-control mb-2"
+            className="form-control mb-2 w-50 mx-auto"
             placeholder="Name"
             value={name}
             onChange={(e)=>setName(e.target.value)}
           />
 
           <input 
-            className="form-control mb-2"
+            className="form-control mb-2 w-50 mx-auto"
             placeholder="Age"
             value={age}
             onChange={(e)=>setAge(e.target.value)}
           />
 
           <input 
-            className="form-control mb-3"
+            className="form-control mb-3 w-50 mx-auto"
             placeholder="Course"
             value={course}
             onChange={(e)=>setCourse(e.target.value)}
           />
 
-          <button 
-            className={`btn ${editId !== null ? "btn-warning" : "btn-success"} mb-3`}
-            onClick={handleSubmit}
-          >
-            {editId !== null ? "Update Student" : "Add Student"}
-          </button>
+          <div className="text-center">
+            <button 
+              className={`btn ${editId !== null ? "btn-warning" : "btn-success"} mb-3`}
+              onClick={handleSubmit}
+            >
+              {editId !== null ? "Update Student" : "Add Student"}
+            </button>
+          </div>
 
-          <table className="table table-bordered table-striped">
+          <table className="table table-bordered table-striped mt-3">
             <thead>
               <tr>
                 <th>Name</th>
