@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import "./App.css";
 
 function App() {
 
-  // ================= STATES =================
   const [students, setStudents] = useState([]);
 
   const [name, setName] = useState("");
@@ -16,7 +14,6 @@ function App() {
   const [token, setToken] = useState("");
 
   const [editId, setEditId] = useState(null);
-
 
   // ================= AUTH =================
 
@@ -40,7 +37,6 @@ function App() {
     .then(data => {
       if (data.token) {
         setToken(data.token);
-        alert("Login successful");
         getStudents(data.token);
       } else {
         alert(data.message);
@@ -52,7 +48,6 @@ function App() {
     setToken("");
     setStudents([]);
   };
-
 
   // ================= STUDENTS =================
 
@@ -116,80 +111,103 @@ function App() {
     setCourse("");
   };
 
-
   // ================= UI =================
 
   return (
-    <div className="container">
+    <div className="container mt-5">
 
       {!token ? (
-        <>
-          <h2>🔐 Login / Register</h2>
+        <div className="card p-4">
+          <h3 className="mb-3">🔐 Login / Register</h3>
 
           <input 
-            placeholder="Username" 
-            onChange={(e)=>setUsername(e.target.value)} 
+            className="form-control mb-2"
+            placeholder="Username"
+            onChange={(e)=>setUsername(e.target.value)}
           />
 
           <input 
-            placeholder="Password" 
+            className="form-control mb-3"
             type="password"
-            onChange={(e)=>setPassword(e.target.value)} 
+            placeholder="Password"
+            onChange={(e)=>setPassword(e.target.value)}
           />
 
-          <div className="auth-buttons">
-            <button onClick={register}>Register</button>
-            <button onClick={login}>Login</button>
-          </div>
-        </>
-      ) : (
-        <>
-          <h2>🎓 Student Dashboard</h2>
+          <button className="btn btn-primary me-2" onClick={register}>
+            Register
+          </button>
 
-          <button onClick={logout} style={{background:"#333"}}>
+          <button className="btn btn-success" onClick={login}>
+            Login
+          </button>
+        </div>
+
+      ) : (
+        <div className="card p-4">
+          <h3 className="mb-3">🎓 Student Dashboard</h3>
+
+          <button className="btn btn-dark mb-3" onClick={logout}>
             Logout
           </button>
 
           <input 
-            placeholder="Name" 
-            value={name} 
-            onChange={(e)=>setName(e.target.value)} 
+            className="form-control mb-2"
+            placeholder="Name"
+            value={name}
+            onChange={(e)=>setName(e.target.value)}
           />
 
           <input 
-            placeholder="Age" 
-            value={age} 
-            onChange={(e)=>setAge(e.target.value)} 
+            className="form-control mb-2"
+            placeholder="Age"
+            value={age}
+            onChange={(e)=>setAge(e.target.value)}
           />
 
           <input 
-            placeholder="Course" 
-            value={course} 
-            onChange={(e)=>setCourse(e.target.value)} 
+            className="form-control mb-3"
+            placeholder="Course"
+            value={course}
+            onChange={(e)=>setCourse(e.target.value)}
           />
 
           <button 
-            className={editId !== null ? "update-btn" : "add-btn"}
+            className={`btn ${editId !== null ? "btn-warning" : "btn-success"} mb-3`}
             onClick={handleSubmit}
           >
             {editId !== null ? "Update Student" : "Add Student"}
           </button>
 
-          <ul>
-            {students.map((s) => (
-              <li key={s.id}>
-                <span>
-                  <strong>{s.name}</strong> | {s.age} yrs | {s.course}
-                </span>
+          <table className="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Course</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
 
-                <div className="card-actions">
-                  <button className="edit" onClick={() => editStudent(s)}>Edit</button>
-                  <button className="delete" onClick={() => deleteStudent(s.id)}>Delete</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </>
+            <tbody>
+              {students.map((s) => (
+                <tr key={s.id}>
+                  <td>{s.name}</td>
+                  <td>{s.age}</td>
+                  <td>{s.course}</td>
+                  <td>
+                    <button className="btn btn-info me-2" onClick={() => editStudent(s)}>
+                      Edit
+                    </button>
+                    <button className="btn btn-danger" onClick={() => deleteStudent(s.id)}>
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+        </div>
       )}
 
     </div>

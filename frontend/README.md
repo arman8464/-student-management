@@ -22,34 +22,40 @@ A full-stack **Student Management System** built using **React, Node.js, Express
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - React.js
 - CSS
 
 ### Backend
+
 - Node.js
 - Express.js
 
 ### Database
+
 - MySQL
 
 ### Authentication
+
 - JWT (JSON Web Token)
 - bcrypt
 
 ---
 
 ## 📂 Project Structure
+
 student-management/
 │
 ├── backend/
-│   ├── server.js
+│ ├── server.js
 │
 ├── frontend/
-│   ├── src/
-│   │   ├── App.js
-│   │   ├── App.css
+│ ├── src/
+│ │ ├── App.js
+│ │ ├── App.css
 │
 └── README.md
+
 ---
 
 ## ⚙️ Installation & Setup
@@ -142,3 +148,4 @@ Students (Protected)
 👨‍💻 Author
 
 Arman Khan
+```
