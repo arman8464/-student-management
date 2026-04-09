@@ -1,34 +1,34 @@
-import React, { useState } from "react";
+import React, { useState } from "react";//hook to store and update data
 
-function App() {
+function App() {//component starts here
 
   const [students, setStudents] = useState([]);
 
-  const [name, setName] = useState("");
+  const [name, setName] = useState("");//these stores input value from UI
   const [age, setAge] = useState("");
   const [course, setCourse] = useState("");
 
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("");//used for login and registration
   const [password, setPassword] = useState("");
 
-  const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState(localStorage.getItem("token") || "");//Get token from browser storage
 
-  const [editId, setEditId] = useState(null);
+  const [editId, setEditId] = useState(null);//to check if student is edited or added
 
   // ================= AUTH =================
 
-  const register = () => {
-    fetch("https://student-backend-7a0d.onrender.com/register", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ username, password })
+  const register = () => {//function runs when user clicks register button
+    fetch("https://student-backend-7a0d.onrender.com/register", {//call register API
+      method: "POST",//sending data
+      headers: {"Content-Type": "application/json"},//tell backend we are sending JSON data
+      body: JSON.stringify({ username, password })//convert to json
     })
     .then(res => res.json())
-    .then(data => alert(data.message));
+    .then(data => alert(data.message));//show message from backend
   };
 
   const login = () => {
-  fetch("https://student-backend-7a0d.onrender.com/login", {
+  fetch("https://student-backend-7a0d.onrender.com/login", {//call login API
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ username, password })
@@ -36,9 +36,9 @@ function App() {
   .then(res => res.json())
   .then(data => {
     if (data.token) {
-      localStorage.setItem("token", data.token); // ✅ SAVE
-      setToken(data.token);
-      getStudents(data.token);
+      localStorage.setItem("token", data.token); //  if login success SAVE token to browser
+      setToken(data.token);//update token state
+      getStudents(data.token);//fetch students data
     } else {
       alert(data.message);
     }
@@ -46,41 +46,41 @@ function App() {
 };
 
   const logout = () => {
-  localStorage.removeItem("token"); // ✅ REMOVE
-  setToken("");
-  setStudents([]);
+  localStorage.removeItem("token"); // REMOVE saved token
+  setToken("");//reset token state
+  setStudents([]);//clear students data
 };
 
   // ================= STUDENTS =================
 
   const getStudents = (tok = token) => {
     fetch("https://student-backend-7a0d.onrender.com/students", {
-      headers: { "Authorization": tok }
+      headers: { "Authorization": tok }//send token in header
     })
     .then(res => res.json())
-    .then(data => setStudents(data));
+    .then(data => setStudents(data));//save data to state
   };
 
-  const handleSubmit = () => {
-    const student = { name, age, course };
+  const handleSubmit = () => {//runs when add/update button is clicked
+    const student = { name, age, course };//create object
 
-    if (editId !== null) {
+    if (editId !== null) {//if editId has value, we are updating existing student
       fetch(`https://student-backend-7a0d.onrender.com/students/${editId}`, {
         method: "PUT",
-        headers: {
+        headers: {//send token+data
           "Content-Type": "application/json",
           "Authorization": token
         },
         body: JSON.stringify(student)
       }).then(() => {
-        setEditId(null);
+        setEditId(null);//reset and refresh data
         clearFields();
         getStudents();
       });
 
     } else {
       fetch("https://student-backend-7a0d.onrender.com/students", {
-        method: "POST",
+        method: "POST",//add new student
         headers: {
           "Content-Type": "application/json",
           "Authorization": token
@@ -97,17 +97,17 @@ function App() {
     fetch(`https://student-backend-7a0d.onrender.com/students/${id}`, {
       method: "DELETE",
       headers: { "Authorization": token }
-    }).then(() => getStudents());
+    }).then(() => getStudents());//refresh list
   };
 
   const editStudent = (s) => {
     setName(s.name);
     setAge(s.age);
     setCourse(s.course);
-    setEditId(s.id);
+    setEditId(s.id);//switch to update mode
   };
 
-  const clearFields = () => {
+  const clearFields = () => {//reset input fields
     setName("");
     setAge("");
     setCourse("");
@@ -125,7 +125,7 @@ function App() {
           <input 
             className="form-control mb-2 w-50 mx-auto"
             placeholder="Username"
-            onChange={(e)=>setUsername(e.target.value)}
+            onChange={(e)=>setUsername(e.target.value)}//When user types → update state
           />
 
           <input 
@@ -136,7 +136,7 @@ function App() {
           />
 
           <div className="d-flex justify-content-center">
-            <button className="btn btn-primary m-2" onClick={register}>
+            <button className="btn btn-primary m-2" onClick={register}>{/*calls register function */}
               Register
             </button>
 
@@ -182,7 +182,7 @@ function App() {
               className={`btn ${editId !== null ? "btn-warning" : "btn-success"} mb-3`}
               onClick={handleSubmit}
             >
-              {editId !== null ? "Update Student" : "Add Student"}
+              {editId !== null ? "Update Student" : "Add Student"}{/*dynamic button text*/}
             </button>
           </div>
 
@@ -199,12 +199,12 @@ function App() {
             <tbody>
               {students.map((s) => (
                 <tr key={s.id}>
-                  <td>{s.name}</td>
+                  <td>{s.name}</td>{/*display student name*/}
                   <td>{s.age}</td>
                   <td>{s.course}</td>
                   <td>
                     <button className="btn btn-info me-2" onClick={() => editStudent(s)}>
-                      Edit
+                      Edit{/*action buttons*/}
                     </button>
                     <button className="btn btn-danger" onClick={() => deleteStudent(s.id)}>
                       Delete
@@ -222,4 +222,4 @@ function App() {
   );
 }
 
-export default App;
+export default App;//makes component available to other files
