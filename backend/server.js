@@ -1,65 +1,75 @@
-require("dotenv").config();// .env file into process.env
-const express = require("express");//for building web applications
-const cors = require("cors");//allowing frontend to communicate with backend
-const mysql = require("mysql2");//connect and interact with MySQL database
-const bcrypt = require("bcrypt");//import bcrypt library for hashing passwords securely
-const jwt = require("jsonwebtoken");//creates and verifies jwts for authentication 
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const mysql = require("mysql2");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
-const app = express();//crerates server 
+const app = express();
 
 app.use(cors({
-  origin: "*",//allow all frontend apps
-  methods: ["GET", "POST", "PUT", "DELETE"],//http methods
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
-app.use(express.json());//converts incoming JSON requests into JavaScript objects, making it easier to access data in request body
 
-// DB CONNECTION
-const db = mysql.createConnection({//creates connection
-    host: process.env.MYSQLHOST,//db should not be hardcoded, use env variables
-    user: process.env.MYSQLUSER,//
+app.use(express.json());
+
+// ================= DB CONNECTION (POOL) =================
+const db = mysql.createPool({
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
     password: process.env.MYSQLPASSWORD,
     database: process.env.MYSQLDATABASE,
-    port: process.env.MYSQLPORT
+    port: process.env.MYSQLPORT,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-db.connect((err) => {
+// Test DB connection
+db.getConnection((err, connection) => {
     if (err) {
-        console.log("Database connection failed", err);
+        console.log("DB Connection Failed:", err);
     } else {
-        console.log("Connected to MySQL");
+        console.log("Connected to MySQL Pool");
+        connection.release();
     }
 });
 
-// MIDDLEWARE
-const verifyToken = (req, res, next) => {//to protect routes
-    const token = req.headers["authorization"];//get token from request header
+// ================= MIDDLEWARE =================
+const verifyToken = (req, res, next) => {
+    const token = req.headers["authorization"];
 
-    if (!token) return res.send("Access denied");//if no token provided, reject request
+    if (!token) return res.status(401).json({ message: "Access denied" });
 
     try {
-        const verified = jwt.verify(token, "secretkey");//checks if token valid?,expired?
-        req.user = verified;//attach user info to request
+        const verified = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = verified;
         next();
     } catch {
-        res.send("Invalid token");
+        res.status(401).json({ message: "Invalid token" });
     }
 };
-
 
 // ================= AUTH =================
 
 // REGISTER
-app.post("/register", async (req, res) => {//post->send data
-    const { username, password } = req.body;//extract input
+app.post("/register", async (req, res) => {
+    try {
+        const { username, password } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-    const sql = "INSERT INTO users (username, password) VALUES (?, ?)";
-    db.query(sql, [username, hashedPassword], (err) => {
-        if (err) return res.send(err);
-        res.json({ message: "User registered" });
-    });
+        const sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+        db.query(sql, [username, hashedPassword], (err) => {
+            if (err) return res.status(500).json(err);
+            res.json({ message: "User registered" });
+        });
+
+    } catch (err) {
+        res.status(500).json(err);
+    }
 });
 
 // LOGIN
@@ -68,35 +78,36 @@ app.post("/login", (req, res) => {
 
     const sql = "SELECT * FROM users WHERE username=?";
     db.query(sql, [username], async (err, result) => {
-        if (err) return res.send(err);
+        if (err) return res.status(500).json(err);
 
-        if (result.length === 0) {//no user found
+        if (result.length === 0) {
             return res.json({ message: "User not found" });
         }
 
-        const user = result[0];//get user data
+        const user = result[0];
 
-        const isMatch = await bcrypt.compare(password, user.password);//compare passwords
+        const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             return res.json({ message: "Invalid password" });
         }
 
-        const token = jwt.sign({ id: user.id }, "secretkey", {
-            expiresIn: "1h"//token expires in 1 hour
-        });
+        const token = jwt.sign(
+            { id: user.id },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
 
         res.json({ message: "Login successful", token });
     });
 });
 
-
-// ================= STUDENT CRUD =================
+// ================= STUDENTS =================
 
 // GET
-app.get("/students", verifyToken, (req, res) => {//verifytoken->only loggedin users allowed
-    db.query("SELECT * FROM students", (err, result) => {//fetch all students from database
-        if (err) return res.send(err);
+app.get("/students", verifyToken, (req, res) => {
+    db.query("SELECT * FROM students", (err, result) => {
+        if (err) return res.status(500).json(err);
         res.json(result);
     });
 });
@@ -107,7 +118,7 @@ app.post("/students", verifyToken, (req, res) => {
 
     const sql = "INSERT INTO students (name, age, course) VALUES (?, ?, ?)";
     db.query(sql, [name, age, course], (err) => {
-        if (err) return res.send(err);
+        if (err) return res.status(500).json(err);
         res.json({ message: "Student added" });
     });
 });
@@ -119,7 +130,7 @@ app.put("/students/:id", verifyToken, (req, res) => {
 
     const sql = "UPDATE students SET name=?, age=?, course=? WHERE id=?";
     db.query(sql, [name, age, course, id], (err) => {
-        if (err) return res.send(err);
+        if (err) return res.status(500).json(err);
         res.json({ message: "Student updated" });
     });
 });
@@ -130,14 +141,16 @@ app.delete("/students/:id", verifyToken, (req, res) => {
 
     const sql = "DELETE FROM students WHERE id=?";
     db.query(sql, [id], (err) => {
-        if (err) return res.send(err);
+        if (err) return res.status(500).json(err);
         res.json({ message: "Student deleted" });
     });
 });
+
+// TEST
 app.get("/", (req, res) => {
     res.send("Backend is running");
 });
 
 app.listen(process.env.PORT || 3001, () => {
-    console.log("Server running on port 3001");
+    console.log("Server running...");
 });

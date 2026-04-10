@@ -53,52 +53,71 @@ function App() {//component starts here
 
   // ================= STUDENTS =================
 
-  const getStudents = (tok = token) => {
-    fetch("https://student-backend-7a0d.onrender.com/students", {
-      headers: { "Authorization": tok }//send token in header
-    })
-    .then(res => res.json())
-    .then(data => setStudents(data));//save data to state
-  };
+  const getStudents = async (tok = token) => {
+  try {
+    const res = await fetch("https://student-backend-7a0d.onrender.com/students", {
+      headers: { Authorization: tok }
+    });
 
-  const handleSubmit = () => {//runs when add/update button is clicked
-    const student = { name, age, course };//create object
+    if (!res.ok) throw new Error("Server error");
 
-    if (editId !== null) {//if editId has value, we are updating existing student
-      fetch(`https://student-backend-7a0d.onrender.com/students/${editId}`, {
-        method: "PUT",
-        headers: {//send token+data
-          "Content-Type": "application/json",
-          "Authorization": token
-        },
-        body: JSON.stringify(student)
-      }).then(() => {
-        setEditId(null);//reset and refresh data
-        clearFields();
-        getStudents();
-      });
+    const data = await res.json();
+    setStudents(data);
 
-    } else {
-      fetch("https://student-backend-7a0d.onrender.com/students", {
-        method: "POST",//add new student
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": token
-        },
-        body: JSON.stringify(student)
-      }).then(() => {
-        clearFields();
-        getStudents();
-      });
+  } catch (err) {
+    console.error(err);
+    alert("Server waking up... try again");
+  }
+};
+  const handleSubmit = async () => {
+  const student = { name, age, course };
+
+  try {
+    let url = "https://student-backend-7a0d.onrender.com/students";
+    let method = "POST";
+
+    if (editId !== null) {
+      url = `https://student-backend-7a0d.onrender.com/students/${editId}`;
+      method = "PUT";
     }
-  };
 
-  const deleteStudent = (id) => {
-    fetch(`https://student-backend-7a0d.onrender.com/students/${id}`, {
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      },
+      body: JSON.stringify(student)
+    });
+
+    if (!res.ok) throw new Error("Failed");
+
+    setEditId(null);
+    clearFields();
+    getStudents();
+
+  } catch (err) {
+    console.error(err);
+    alert("Server error, try again");
+  }
+};
+
+  const deleteStudent = async (id) => {
+  try {
+    const res = await fetch(`https://student-backend-7a0d.onrender.com/students/${id}`, {
       method: "DELETE",
-      headers: { "Authorization": token }
-    }).then(() => getStudents());//refresh list
-  };
+      headers: { Authorization: token }
+    });
+
+    if (!res.ok) throw new Error("Delete failed");
+
+    getStudents();
+
+  } catch (err) {
+    console.error(err);
+    alert("Delete failed");
+  }
+};
 
   const editStudent = (s) => {
     setName(s.name);
