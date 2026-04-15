@@ -14,20 +14,27 @@ function App() {//component starts here
   const [token, setToken] = useState(localStorage.getItem("token") || "");//Get token from browser storage
 
   const [editId, setEditId] = useState(null);//to check if student is edited or added
+  const [loading, setLoading] = useState(false); // To handle render cold start delay
 
   // ================= AUTH =================
 
   const register = () => {//function runs when user clicks register button
+    setLoading(true);
     fetch("https://student-backend-7a0d.onrender.com/register", {//call register API
       method: "POST",//sending data
       headers: {"Content-Type": "application/json"},//tell backend we are sending JSON data
       body: JSON.stringify({ username, password })//convert to json
     })
     .then(res => res.json())
-    .then(data => alert(data.message));//show message from backend
+    .then(data => {
+      alert(data.message);//show message from backend
+      setLoading(false);
+    })
+    .catch(() => setLoading(false));
   };
 
   const login = () => {
+  setLoading(true);
   fetch("https://student-backend-7a0d.onrender.com/login", {//call login API
     method: "POST",
     headers: {"Content-Type": "application/json"},
@@ -41,8 +48,10 @@ function App() {//component starts here
       getStudents(data.token);//fetch students data
     } else {
       alert(data.message);
+      setLoading(false);
     }
-  });
+  })
+  .catch(() => setLoading(false));
 };
 
   const logout = () => {
@@ -54,6 +63,7 @@ function App() {//component starts here
   // ================= STUDENTS =================
 
   const getStudents = async (tok = token) => {
+  setLoading(true);
   try {
     const res = await fetch("https://student-backend-7a0d.onrender.com/students", {
       headers: { Authorization: tok }
@@ -67,6 +77,8 @@ function App() {//component starts here
   } catch (err) {
     console.error(err);
     alert("Server waking up... try again");
+  } finally {
+    setLoading(false);
   }
 };
   const handleSubmit = async () => {
@@ -155,14 +167,15 @@ function App() {//component starts here
           />
 
           <div className="d-flex justify-content-center">
-            <button className="btn btn-primary m-2" onClick={register}>{/*calls register function */}
+            <button className="btn btn-primary m-2" onClick={register} disabled={loading}>{/*calls register function */}
               Register
             </button>
 
-            <button className="btn btn-success m-2" onClick={login}>
-              Login
+            <button className="btn btn-success m-2" onClick={login} disabled={loading}>
+              {loading ? "Loading..." : "Login"}
             </button>
           </div>
+          {loading && <div className="mt-3 text-info">Connecting to server... (This might take ~50s to wake up on Render as it's a free instance)</div>}
         </div>
 
       ) : (
